@@ -1,4 +1,5 @@
 package logic;
+
 import GUI.*;
 import java.util.Queue;
 
@@ -9,14 +10,17 @@ public class Car extends Thread {
     private Semaphore availableAreas;
     private Semaphore waitingCars;
     private SimulationView view;
+    private StatisticsPanel stats; 
 
-    public Car(int id, Queue<Car> queue, Semaphore mutex, Semaphore availableAreas, Semaphore waitingCars, SimulationView view) {
+   
+    public Car(int id, Queue<Car> queue, Semaphore mutex, Semaphore availableAreas, Semaphore waitingCars, SimulationView view, StatisticsPanel stats) {
         this.id = id;
         this.queue = queue;
         this.mutex = mutex;
         this.availableAreas = availableAreas;
         this.waitingCars = waitingCars;
         this.view = view;
+        this.stats = stats;
     }
 
     public int getCarId() {
@@ -29,10 +33,13 @@ public class Car extends Thread {
 
             availableAreas.waitSemaphore();
             mutex.waitSemaphore();
-
             queue.add(this);
             view.addCarToQueue("C" + id);
             System.out.println("C" + id + " entered the waiting queue.");
+
+            if (stats != null) {
+                stats.updateWaitingCars(queue.size());
+            }
 
             mutex.signal();
             waitingCars.signal(); 
