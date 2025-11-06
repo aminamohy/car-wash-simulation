@@ -1,45 +1,44 @@
 package logic;
-import java.util.LinkedList;
+import GUI.*;
 import java.util.Queue;
-import java.util.Scanner;
-public class Car extends Thread  {
 
+public class Car extends Thread {
     private int id;
     private Queue<Car> queue;
-    private Semaphore empty, full, mutex;
+    private Semaphore mutex;
+    private Semaphore availableAreas;
+    private Semaphore waitingCars;
+    private SimulationView view;
 
-    public Car(int id, Queue<Car> queue, Semaphore empty, Semaphore full, Semaphore mutex) {
+    public Car(int id, Queue<Car> queue, Semaphore mutex, Semaphore availableAreas, Semaphore waitingCars, SimulationView view) {
         this.id = id;
         this.queue = queue;
-        this.empty = empty;
-        this.full = full;
         this.mutex = mutex;
+        this.availableAreas = availableAreas;
+        this.waitingCars = waitingCars;
+        this.view = view;
     }
 
     public int getCarId() {
         return id;
     }
 
-    public void run(){
+    public void run() {
         try {
-            System.out.println(" C" + id + " arrived");
-            
-            empty.waitSemaphore(); 
+            System.out.println("C" + id + " arrived.");
+
+            availableAreas.waitSemaphore();
             mutex.waitSemaphore();
-            
+
             queue.add(this);
-            if (queue.size() == 1) {
-                System.out.println("C" + id + " entered queue");
-            } else {
-                System.out.println("C" + id + " arrived and waiting");
-            }
-            
+            view.addCarToQueue("C" + id);
+            System.out.println("C" + id + " entered the waiting queue.");
+
             mutex.signal();
-            full.signal();
-            
+            waitingCars.signal(); 
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 }
-

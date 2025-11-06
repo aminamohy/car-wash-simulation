@@ -1,14 +1,9 @@
 package GUI;
-import logic.ServiceStation;  
-import javax.swing.*;
-import java.awt.*;
-
-
-import logic.ServiceStation; // 👈 عشان تستخدمي كلاس ServiceStation
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.*; // 👈 عشان تستخدمي كلاس ServiceStation
+import logic.ServiceStation;
 
 public class ControlPanel extends JPanel {
 
@@ -17,8 +12,12 @@ public class ControlPanel extends JPanel {
     private JTextField carsField;
     private JButton startButton;
     private JTextArea outputArea;
+    private SimulationView simView;
+    private JFrame parentFrame;
+    
 
-    public ControlPanel() {
+    public ControlPanel(JFrame parentFrame) {
+        this.parentFrame = parentFrame;
         setLayout(new GridBagLayout());
         setBackground(new Color(240, 248, 255));
 
@@ -79,9 +78,18 @@ public class ControlPanel extends JPanel {
             int pumps = Integer.parseInt(pumpsField.getText());
             int queue = Integer.parseInt(queueField.getText());
             int cars = Integer.parseInt(carsField.getText());
+            // In the startSimulation method, add this before starting new simulation:
+
+            simView = new SimulationView(pumps); 
+            parentFrame.add(simView, BorderLayout.CENTER);
+           SwingUtilities.invokeLater(() -> {
+    parentFrame.revalidate();
+    parentFrame.repaint();
+});
 
 
-            ServiceStation station = new ServiceStation(pumps, queue);
+
+            ServiceStation station = new ServiceStation(pumps, queue,simView);
 
 
             Thread simulationThread = new Thread(() -> {
